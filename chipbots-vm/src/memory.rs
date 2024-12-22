@@ -1,7 +1,11 @@
-use anyhow::Result;
-use zerocopy::{FromBytes, FromZeros, IntoBytes, KnownLayout};
+use std::{
+    io::Cursor,
+    ops::{Index, IndexMut},
+};
 
-#[derive(FromZeros, IntoBytes)]
+use anyhow::Result;
+use byteorder::{BigEndian, ReadBytesExt};
+
 #[repr(transparent)]
 pub struct Memory<const N: usize> {
     ram: [u8; N],
@@ -13,16 +17,27 @@ impl<const N: usize> Default for Memory<N> {
     }
 }
 
+impl<const N: usize> Index<u16> for Memory<N> {
+    type Output = u8;
+
+    fn index(&self, index: u16) -> &Self::Output {
+        &self.ram[index as usize]
+    }
+}
+
+impl<const N: usize> IndexMut<u16> for Memory<N> {
+    fn index_mut(&mut self, index: u16) -> &mut Self::Output {
+        &mut self.ram[index as usize]
+    }
+}
+
 impl<const N: usize> Memory<N> {
-    pub fn next<T: FromBytes + KnownLayout + 'static>(
-        self: &Memory<N>,
-        counter: &mut u16,
-    ) -> Result<T> {
+    pub fn next_instruction(self: &Memory<N>, counter: &mut u16) -> Result<u16> {
         let from = *counter as usize;
         assert!(from < N);
-        let result =
-            T::read_from_bytes(&self.ram[from..]).map_err(|e| anyhow::Error::msg(e.to_string()))?;
-        *counter = *counter + (std::mem::size_of::<T>() as u16);
+        let mut cursor = Cursor::new(&self.ram[from..]);
+        let result = cursor.read_u16::<BigEndian>()?;
+        *counter += 2;
         Ok(result)
     }
 }

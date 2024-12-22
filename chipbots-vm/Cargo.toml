@@ -5,5 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.94"
+bitmatch = "0.1.1"
+byteorder = "1.5.0"
+rand = "0.8.5"
 zerocopy = { version = "0.8.13", features = ["derive"] }
-chipbots-vm-macros = { path = "macros" }
