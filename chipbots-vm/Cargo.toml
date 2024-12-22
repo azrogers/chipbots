@@ -1,0 +1,9 @@
+[package]
+name = "chipbots-vm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.94"
+zerocopy = { version = "0.8.13", features = ["derive"] }
+chipbots-vm-macros = { path = "macros" }
