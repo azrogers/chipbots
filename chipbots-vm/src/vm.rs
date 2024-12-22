@@ -70,6 +70,10 @@ impl Default for VirtualMachine {
 }
 
 impl VirtualMachine {
+    pub fn memcpy(self: &mut VirtualMachine, src: &[u8], to: u16) {
+        self.ram.memcpy(src, to)
+    }
+
     #[bitmatch]
     pub fn step(self: &mut VirtualMachine) -> Result<ExecutionResult> {
         if self.reg.pc >= 0xfff {
@@ -79,6 +83,8 @@ impl VirtualMachine {
         let instruction = self.ram.next_instruction(&mut self.reg.pc)?;
         #[bitmatch]
         match instruction {
+            // 0000 - NOP
+            "0000_0000_0000_0000" => Ok(ExecutionResult::Success),
             // 00CN - scroll display N lines down
             "0000_0000_1100_????" => Ok(ExecutionResult::Unsupported),
             // 00DN - scroll display N lines up (XO-CHIP)

@@ -32,6 +32,10 @@ impl<const N: usize> IndexMut<u16> for Memory<N> {
 }
 
 impl<const N: usize> Memory<N> {
+    pub fn memcpy(self: &mut Memory<N>, src: &[u8], to: u16) {
+        self.ram[to as usize..(to as usize + src.len())].clone_from_slice(src)
+    }
+
     pub fn next_instruction(self: &Memory<N>, counter: &mut u16) -> Result<u16> {
         let from = *counter as usize;
         assert!(from < N);

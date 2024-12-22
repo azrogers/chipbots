@@ -1,0 +1,26 @@
+whitespace = { " " | "\t" | "\r" }
+whitespace_or_nl = { whitespace | "\n" }
+label_name = { ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+label = { label_name ~ ":" }
+parameter_hex = { "0x" ~ (ASCII_HEX_DIGIT+) }
+parameter_num = { ASCII_DIGIT+ }
+parameter_register = { (("V" | "v") ~ ASCII_HEX_DIGIT | ("I" | "i")) }
+parameter = { 
+	(parameter_hex | parameter_num | parameter_register | label_name) 
+}
+instruction_name = { ASCII_ALPHA+ }
+instruction = { 
+	instruction_name ~ whitespace* ~ 
+    (parameter ~ whitespace* ~
+    "," ~ whitespace*)* ~
+    parameter*
+} 
+directive = {
+	"%" ~ label_name ~ 
+    (whitespace* ~ parameter ~ whitespace* ~ ",")* ~
+    whitespace* ~ parameter?
+}
+
+program = {
+	(whitespace_or_nl* ~ (directive | label | instruction) ~ whitespace_or_nl*)*
+}
